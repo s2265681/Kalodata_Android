@@ -1,0 +1,276 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JoAPP！</title>
+    <style>
+        body{
+            width: 100%;
+            height: 100%;
+            padding: 0 0 0 0;
+        }
+            .container {
+                width: 100%;
+                height: 100%;
+            }
+
+            ul {
+                padding-left: 20px;
+            }
+
+                ul li {
+                    line-height: 2.3
+                }
+
+            a {
+                color: #20a53a
+            }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>JoAPP测试 JS与Android交互！</h1>
+    <ul>
+        <li><button type="button" onclick="clickAndroid()">无回传调用安卓方法</button></li>
+        <li><button type="button" onclick="JoPushWebToken()">向原生APP传入web端token</button></li>
+        <li><button type="button" onclick="JoGetAppToken()">获取原生APP中的token</button></li>
+        <li><button type="button" onclick="JoAppFile()">选择、上传文件</button></li>
+        <li><button type="button" onclick="JoAppImage()">选择、上传图片</button></li>
+
+        <li><button type="button" onclick="JoAppLocation()">获取APP位置信息</button></li>
+
+        <li><button type="button" onclick="JoAppCheckLocation()">传入位置检测要求</button></li>
+        <li><button type="button" onclick="JoAppCheckFace()">传入人脸比对要求</button></li>
+        <li><button type="button" onclick="JoAppCompareFace()">APP版人脸对比</button></li>
+
+        <li><button type="button" onclick="JoAppFaceData()">打开APP本地人脸库</button></li>
+
+
+        <li><button type="button" onclick="JoAppSetting()">打开APP设置界面</button></li>
+
+
+
+        <!--<li><button type="button" onclick="JoAppCompareFaceWeb()">WEB版人脸对比</button></li>-->
+
+
+
+        <p id="showres">在这里显示安卓调用js结果</p>
+
+
+
+
+        <p>连击3下屏幕可进入H5网址配置界面</p>
+
+
+        <button onclick="confirm('确认')">confirm</button>
+        <button onclick="alert('弹窗')">alert</button>
+        <button onclick="prompt('prompt')">prompt</button>
+        <button onclick="log()">log</button>
+</div>
+
+<script type="text/javascript">
+
+    //WEB端本地配置信息
+    const joAppConfig = {"ApiUrl": "http://joapp.d.2om.cn/api/","AppTitle": "JoAPP交互","IsDebug": "1", "UpBucketName": "evaluate","UpFileName":"file","Authorization": "Authorization","Applicationcode":"Applicationcode","ApplicationcodeValue": "saas_app"}
+    let joToken = "eyJhbGciOiJIUzUxMiJ9.eyJsb2dpbl91c2VyX2tleSI6IjE4MDQyZTA0LTNmYjctNDU4MS04MDI2LTVlYjNjNzkwM2RjZCJ9.DsGbY6t8D6_lkG8nJQ_YhU8ph3xyLDcQxGmQ2XGlFEKtUZFyyjGg72ShOopuPMca3i14ZSK70WSZ0tGDRyGHow"
+
+    //web端传入要求APP检测的位置范围
+    let checkLocation = "116.449797,39.999439,10"
+    //web端传入要求APP检测的人脸信息，比对人脸图片URL,人脸姓名
+    let checkFace = "http://joapp.d.2om.cn/faceimage/002.jpg,刘大东"
+
+    /*
+    JoAppJs 安卓调用的JS方法库
+    */
+    class JoAppJs {
+        //测试不带参数
+        test () {
+            alert("Android调用了JS代码")
+            document.getElementById("showres").innerHTML = "Android调用了JS代码"
+        }
+        //测试不带参数
+        testData (data) {
+             alert("Android调用了JS代码" + data)
+             document.getElementById("showres").innerHTML = data
+        }
+
+        //web端配置信息回传给原生端
+        config(){
+
+            //调取原生APP方法传入配置
+            const joConfigStr = JSON.stringify(joAppConfig)
+            joApp.joConfig(joConfigStr)
+        }
+
+        //web端token信息回传给原生端
+        token(){
+            alert(joToken)
+            joApp.joToken(joToken)
+
+        }
+
+        //原生调用该方法将原生app中的token写到web端
+        setToken(data){
+           //const dataJson = data  //JSON.parse(data)
+           joToken = data
+           alert("新token：" + joToken)
+           //获取新token后执行其他工作
+
+        }
+
+        //app上传文件后接收结果的方法
+        upFileRes(data){
+            alert("收到文件上传信息" + data)
+        }
+
+        //app上传图片后接收结果的方法
+        upImageRes(data){
+            alert("收到图片上传信息" + data)
+        }
+
+        //app上传图片后接收结果的方法
+        upVideoRes(data){
+            alert("收到视频上传信息" + data)
+        }
+
+
+        //app位置信息传给web
+        setLocation(data){
+            alert("收到APP位置信息" + data)
+            document.getElementById("showres").innerHTML = "收到APP位置信息" + data
+        }
+
+        //app人脸对比结果信息传给web
+        compareFace(data){
+            alert("收到APP人脸对比结果信息" + data)
+            document.getElementById("showres").innerHTML = "收到APP人脸对比结果" + data
+        }
+
+
+
+    }
+
+    const joAppJs = new JoAppJs()
+
+    //const joApp = new JoApp()
+
+</script>
+<script type="text/javascript">
+    //调取原生APP方法集合
+    //测试
+    function clickAndroid(){
+        //用joapp.调用映射的对象    这里的androids是addJavascriptInterface()的第二个参数
+        joApp.jsAndroid("我是JS,我调用了Android的方法")
+    }
+
+
+    //上传文件
+    function JoAppFile(){
+         const dataJson = {"maxCount": 1 }
+        joApp.joFile("joAppJs.upFileRes", JSON.stringify(dataJson))
+    }
+
+    //上传图片
+    function JoAppImage(){
+        const dataJson = {"maxCount": 1 }
+        joApp.joImage("joAppJs.upImageRes", JSON.stringify(dataJson))
+    }
+
+    //获取位置
+    function JoAppLocation(){
+        joApp.joLocation("joAppJs.setLocation", "")
+    }
+
+    //对比人脸
+    function JoAppCompareFace(){
+        joApp.joFaceCompare("joAppJs.compareFace", "")
+    }
+
+    function JoAppCompareFaceWeb(){
+        window.location.href = './face/webcam.html'
+    }
+
+    function JoAppFaceData(){
+       joApp.joFaceData()
+    }
+
+
+    //传入位置检测要求，参考点经度,维度,限制范围距离（米）
+    function JoAppCheckLocation(){
+        alert(checkLocation)
+        joApp.joCheckLocation(checkLocation)
+    }
+
+    //传入人脸检测要求，比对人脸照片图片URL,人脸姓名
+    function JoAppCheckFace(){
+        alert(checkFace)
+        joApp.joCheckFace(checkFace)
+    }
+
+
+    //向原生APP传入webtoken
+    //web页面加载后为app传入token，保持两端token一致
+    //web退出后，清空token，传入空值
+    function JoPushWebToken(){
+        joAppJs.token()
+    }
+
+
+
+    //获取app token
+    function JoGetAppToken(){
+        //用joapp.调用映射的对象    这里的androids是addJavascriptInterface()的第二个参数
+        joApp.joTokenToWeb()
+    }
+
+    //打开app 设置界面
+    function JoAppSetting(){
+        //用joapp.调用映射的对象    这里的androids是addJavascriptInterface()的第二个参数
+        joApp.joSetting()
+    }
+
+
+
+    function clickAndroidRes(){
+        //用joapp.调用映射的对象    这里的androids是addJavascriptInterface()的第二个参数
+        joApp.jsAndroidRes("我是JS,我调用了Android的方法回传给testData", "joAppJs.test")
+    }
+
+
+
+
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]); return null;
+    }
+
+    //增加来源判断，如果强制来自 app ，则加载页面后执行，同时标识写入缓存
+    let _isapp = getQueryString("_isapp")
+
+    if(_isapp==undefined || _isapp==null || _isapp==''){
+        _isapp = localStorage.getItem("_isapp")
+    }else{
+        localStorage.setItem("_isapp", "1");
+    }
+
+    if(_isapp=="1"){
+
+        //页面加载完毕后向APP推送web端配置
+        joAppJs.config()
+        //页面加载完毕后向APP推送web端token
+        joAppJs.token()
+
+    }
+
+</script>
+
+<script type="text/javascript">
+    function log(){
+      console.log("console.log");
+      console.warn("warnning");
+      console.error("error");
+    }
+</script>
+</html>
