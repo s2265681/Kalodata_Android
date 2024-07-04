@@ -26,7 +26,6 @@ class MainActivity : ComponentActivity() {
         @JavascriptInterface
         fun showToast(toast: String) {
             Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show()
-
         }
     }
 }
