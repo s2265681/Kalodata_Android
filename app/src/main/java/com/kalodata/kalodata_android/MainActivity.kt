@@ -6,6 +6,7 @@ import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 
+
 class MainActivity : ComponentActivity() {
     private lateinit var webView: WebView
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,6 +21,13 @@ class MainActivity : ComponentActivity() {
         // 加载网页
         webView.loadUrl("https://staging.m.kalodata.com")
 //        webView.loadUrl("file:///android_asset/jsBridge.html")
+    }
+    override fun onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack()
+        } else {
+            super.onBackPressed()
+        }
     }
 
     class WebAppInterface(private val mContext: Context) {

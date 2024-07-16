@@ -11,8 +11,8 @@ android {
         applicationId = "com.kalodata.kalodata_android"
         minSdk = 29
         targetSdk = 34
-        versionCode = 1
-        versionName = "kalodata"
+        versionCode = 7
+        versionName = "1.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -50,7 +50,8 @@ android {
 }
 
 dependencies {
-
+    val billing_version = "7.0.0"
+    implementation("com.android.billingclient:billing:$billing_version")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
