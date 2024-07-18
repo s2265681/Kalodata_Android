@@ -8,7 +8,6 @@ import android.os.Handler
 import android.content.Intent
 
 class SplashActivity : ComponentActivity() {
-    private lateinit var webView: WebView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)

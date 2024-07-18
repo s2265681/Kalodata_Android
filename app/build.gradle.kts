@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.appcompat)
     val billing_version = "7.0.0"
     implementation("com.android.billingclient:billing:$billing_version")
     implementation(libs.androidx.core.ktx)
