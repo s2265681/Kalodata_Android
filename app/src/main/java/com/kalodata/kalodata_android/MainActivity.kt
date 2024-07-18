@@ -111,9 +111,9 @@ class MainActivity : ComponentActivity(),MainActionCallback {
             }
         }
 
-        webView.addJavascriptInterface(WebAppInterface(this), "__isAndroid__")
-        webView.loadUrl("https://m.kalodata.com")
-        // webView.loadUrl("http://192.168.31.130:5173")
+        webView.addJavascriptInterface(WebAppInterface(this), "Android")
+//         webView.loadUrl("https://develop.m.kalodata.com")
+          webView.loadUrl("http://192.168.31.130:5173")
         // 初始化账单信息
         initializeBillingClient()
     }
@@ -135,7 +135,7 @@ class MainActivity : ComponentActivity(),MainActionCallback {
 
     fun handleEvaluateJs (funName: String, eventType: String, message:String?){
         webView.evaluateJavascript("javascript:$funName('$eventType', '$message')") { value ->
-            // Toast.makeText(this@MainActivity, "JavaScript returned: $value", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this@MainActivity, "JavaScript returned: $value", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -196,8 +196,8 @@ class MainActivity : ComponentActivity(),MainActionCallback {
                                 .build()
                             billingClient.launchBillingFlow(this@MainActivity, billingFlowParams)
                         } else {
-                            callJsFromAndroid("channelMessage","buyfail", "Invalid product ID")
                             Toast.makeText(this@MainActivity, "Invalid product ID", Toast.LENGTH_SHORT).show()
+                            callJsFromAndroid("channelMessage","buyfail", "Invalid product ID")
                         }
                     }
                 }

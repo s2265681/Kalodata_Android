@@ -42,8 +42,8 @@
         <activity android:name=".MainActivity" android:launchMode="standard">
         </activity>
 
-        <!-- <activity android:name=".BillingActivity" android:launchMode="standard">
-        </activity> -->
+        <activity android:name=".BillingActivity" android:launchMode="standard">
+        </activity>
 
     </application>
 
