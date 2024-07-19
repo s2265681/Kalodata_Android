@@ -112,8 +112,8 @@ class MainActivity : ComponentActivity(),MainActionCallback {
         }
 
         webView.addJavascriptInterface(WebAppInterface(this), "Android")
-//         webView.loadUrl("https://develop.m.kalodata.com")
-          webView.loadUrl("http://192.168.31.130:5173")
+        webView.loadUrl("https://m.kalodata.com")
+        //  webView.loadUrl("http://192.168.31.130:5173")
         // 初始化账单信息
         initializeBillingClient()
     }
@@ -134,8 +134,10 @@ class MainActivity : ComponentActivity(),MainActionCallback {
     }
 
     fun handleEvaluateJs (funName: String, eventType: String, message:String?){
+        if(eventType =="buyfail"){
+            Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+        }
         webView.evaluateJavascript("javascript:$funName('$eventType', '$message')") { value ->
-//            Toast.makeText(this@MainActivity, "JavaScript returned: $value", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -162,7 +164,7 @@ class MainActivity : ComponentActivity(),MainActionCallback {
             }
             override fun onBillingServiceDisconnected() {
                 // 处理支付服务断开的情况
-                Toast.makeText(this@MainActivity, "Handle payment service disconnection", Toast.LENGTH_SHORT).show()
+                callJsFromAndroid("channelMessage","buyfail", "Handle payment service disconnection")
             }
     })
     }
@@ -196,7 +198,6 @@ class MainActivity : ComponentActivity(),MainActionCallback {
                                 .build()
                             billingClient.launchBillingFlow(this@MainActivity, billingFlowParams)
                         } else {
-                            Toast.makeText(this@MainActivity, "Invalid product ID", Toast.LENGTH_SHORT).show()
                             callJsFromAndroid("channelMessage","buyfail", "Invalid product ID")
                         }
                     }
