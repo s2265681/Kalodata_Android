@@ -1,4 +1,4 @@
-package com.kalodata.kalodata_android
+package com.kalodata.kalodata
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.kalodata.kalodata_android", appContext.packageName)
+        assertEquals("com.kalodata.kalodata", appContext.packageName)
     }
 }

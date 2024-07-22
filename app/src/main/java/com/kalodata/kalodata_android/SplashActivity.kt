@@ -1,8 +1,7 @@
 
 
-package com.kalodata.kalodata_android;
+package com.kalodata.kalodata;
 import android.os.Bundle
-import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import android.os.Handler
 import android.content.Intent

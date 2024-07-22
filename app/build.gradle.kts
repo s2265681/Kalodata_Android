@@ -4,15 +4,15 @@ plugins {
 }
 
 android {
-    namespace = "com.kalodata.kalodata_android"
+    namespace = "com.kalodata.kalodata"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.kalodata.kalodata_android"
+        applicationId = "com.kalodata.kalodata"
         minSdk = 29
         targetSdk = 34
-        versionCode = 10
-        versionName = "1.0.7"
+        versionCode = 1
+        versionName = "0.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

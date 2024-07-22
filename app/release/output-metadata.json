@@ -4,15 +4,15 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.kalodata.kalodata_android",
+  "applicationId": "com.kalodata.kalodata",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 10,
-      "versionName": "1.0.3",
+      "versionCode": 1,
+      "versionName": "0.0.1",
       "outputFile": "app-release.apk"
     }
   ],

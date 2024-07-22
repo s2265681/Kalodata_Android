@@ -1,4 +1,4 @@
-package com.kalodata.kalodata_android;
+package com.kalodata.kalodata;
 
 import android.content.Context
 import android.content.Intent

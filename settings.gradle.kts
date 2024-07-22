@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "kalodata_android"
+rootProject.name = "kalodata"
 include(":app")

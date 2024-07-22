@@ -1,4 +1,4 @@
-package com.kalodata.kalodata_android;
+package com.kalodata.kalodata;
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -164,8 +164,8 @@ class MainActivity : ComponentActivity(),MainActionCallback {
         }
 
         webView.addJavascriptInterface(WebAppInterface(this), "Android")
-//        webView.loadUrl("https://develop.m.kalodata.com")
-          webView.loadUrl("http://192.168.31.131:5173")
+        webView.loadUrl("https://m.kalodata.com")
+//          webView.loadUrl("http://192.168.31.131:5173")
         // 初始化账单信息
         initializeBillingClient()
     }
