@@ -20,11 +20,59 @@ import com.android.billingclient.api.ProductDetailsResponseListener
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
-
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 
 // 定义一个回调接口
 interface MainActionCallback {
     fun toGooglePay(productId: String)
+}
+
+data class PurchaseInfo(
+    val orderId: String?,
+    val packageName: String,
+    val purchaseTime: Long,
+    val purchaseState: Int,
+    val purchaseToken: String,
+    val quantity: Int,
+    val signature: String,
+    val productId:String
+)
+
+
+data class GooglePlayPurchase(
+    @SerializedName("orderId") val orderId: String,
+    @SerializedName("packageName") val packageName: String,
+    @SerializedName("productId") val productId: String,
+    @SerializedName("quantity") val quantity: Int,
+    @SerializedName("purchaseTime") val purchaseTime: Long,
+    @SerializedName("purchaseState") val purchaseState: Int,
+    @SerializedName("purchaseToken") val purchaseToken: String,
+    @SerializedName("signature") val signature: String,
+    @SerializedName("isAutoRenewing") val isAutoRenewing: Boolean
+)
+
+val gson = Gson()
+
+fun parsePurchaseJson(originalJson: String): GooglePlayPurchase {
+    val gson = Gson()
+    return gson.fromJson(originalJson, GooglePlayPurchase::class.java)
+}
+
+fun purchaseToPurchaseInfo(originalJson: GooglePlayPurchase, signature: String): PurchaseInfo {
+    return PurchaseInfo(
+        orderId = originalJson.orderId,
+        packageName = originalJson.packageName,
+        purchaseTime = originalJson.purchaseTime,
+        purchaseState = originalJson.purchaseState,
+        purchaseToken = originalJson.purchaseToken,
+        quantity = originalJson.quantity,
+        signature = signature,
+        productId = originalJson.productId,
+    )
+}
+fun purchaseInfoToJson(purchaseInfo: PurchaseInfo): String {
+    return gson.toJson(purchaseInfo)
 }
 
 class MainActivity : ComponentActivity(),MainActionCallback {
@@ -52,6 +100,10 @@ class MainActivity : ComponentActivity(),MainActionCallback {
             .build()
         val listener = ConsumeResponseListener { billingResult, purchaseToken ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                // 将 Purchase 对象转换为 PurchaseInfo
+                val purchaseInfo = purchaseToPurchaseInfo(parsePurchaseJson(purchase.originalJson), purchase.signature)
+                // 将 PurchaseInfo 转换为 JSON 字符串
+                val json = purchaseInfoToJson(purchaseInfo)
                 // 处理消耗成功的情况
                 // 1. 验证购买
                 // 你可以在这里添加服务器端的购买验证，确保购买有效
@@ -65,7 +117,7 @@ class MainActivity : ComponentActivity(),MainActionCallback {
                 // 4. 通知用户
                 // 显示一个Toast消息或更新UI来告知用户他们的购买已成功
 //                Toast.makeText(this, "购买成功", Toast.LENGTH_LONG).show()
-                callJsFromAndroid("channelMessage","buysuccess")
+                callJsFromAndroid("channelMessage","buysuccess",json)
                 // 5. 发放物品或权限
                 // 根据购买的项目，发放相应的物品或权限给用户
                 // grantItemOrPermissionToUser(purchase)
@@ -112,8 +164,8 @@ class MainActivity : ComponentActivity(),MainActionCallback {
         }
 
         webView.addJavascriptInterface(WebAppInterface(this), "Android")
-        webView.loadUrl("https://m.kalodata.com")
-        //  webView.loadUrl("http://192.168.31.130:5173")
+//        webView.loadUrl("https://develop.m.kalodata.com")
+          webView.loadUrl("http://192.168.31.131:5173")
         // 初始化账单信息
         initializeBillingClient()
     }

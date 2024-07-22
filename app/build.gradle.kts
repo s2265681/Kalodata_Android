@@ -51,6 +51,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.appcompat)
+    implementation("com.google.code.gson:gson:2.8.9")
     val billing_version = "7.0.0"
     implementation("com.android.billingclient:billing:$billing_version")
     implementation(libs.androidx.core.ktx)
