@@ -1,4 +1,5 @@
 package com.kalodata.kalodata;
+import java.util.Base64
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -21,58 +22,24 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 
 // 定义一个回调接口
 interface MainActionCallback {
-    fun toGooglePay(productId: String)
+    fun toGooglePay(productId: String, userId: String)
 }
 
-data class PurchaseInfo(
-    val orderId: String?,
-    val packageName: String,
-    val purchaseTime: Long,
-    val purchaseState: Int,
-    val purchaseToken: String,
-    val quantity: Int,
-    val signature: String,
-    val productId:String
-)
+fun base64Encode(input: String): String {
+    val encodedBytes = Base64.getEncoder().encode(input.toByteArray(Charsets.UTF_8))
+    return String(encodedBytes, Charsets.UTF_8)
+}
 
-
-data class GooglePlayPurchase(
-    @SerializedName("orderId") val orderId: String,
-    @SerializedName("packageName") val packageName: String,
-    @SerializedName("productId") val productId: String,
-    @SerializedName("quantity") val quantity: Int,
-    @SerializedName("purchaseTime") val purchaseTime: Long,
-    @SerializedName("purchaseState") val purchaseState: Int,
-    @SerializedName("purchaseToken") val purchaseToken: String,
-    @SerializedName("signature") val signature: String,
-    @SerializedName("isAutoRenewing") val isAutoRenewing: Boolean
-)
-
-val gson = Gson()
-
-fun parsePurchaseJson(originalJson: String): GooglePlayPurchase {
+fun purchaseInfoToJson(purchase: Purchase): String {
     val gson = Gson()
-    return gson.fromJson(originalJson, GooglePlayPurchase::class.java)
-}
-
-fun purchaseToPurchaseInfo(originalJson: GooglePlayPurchase, signature: String): PurchaseInfo {
-    return PurchaseInfo(
-        orderId = originalJson.orderId,
-        packageName = originalJson.packageName,
-        purchaseTime = originalJson.purchaseTime,
-        purchaseState = originalJson.purchaseState,
-        purchaseToken = originalJson.purchaseToken,
-        quantity = originalJson.quantity,
-        signature = signature,
-        productId = originalJson.productId,
+    val purchase = mapOf(
+        "data" to purchase.originalJson,
+        "signature" to purchase.signature
     )
-}
-fun purchaseInfoToJson(purchaseInfo: PurchaseInfo): String {
-    return gson.toJson(purchaseInfo)
+    return base64Encode(gson.toJson(purchase))
 }
 
 class MainActivity : ComponentActivity(),MainActionCallback {
@@ -101,9 +68,9 @@ class MainActivity : ComponentActivity(),MainActionCallback {
         val listener = ConsumeResponseListener { billingResult, purchaseToken ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 // 将 Purchase 对象转换为 PurchaseInfo
-                val purchaseInfo = purchaseToPurchaseInfo(parsePurchaseJson(purchase.originalJson), purchase.signature)
+//                val purchaseInfo = purchaseToPurchaseInfo(parsePurchaseJson(purchase.originalJson), purchase.signature)
                 // 将 PurchaseInfo 转换为 JSON 字符串
-                val json = purchaseInfoToJson(purchaseInfo)
+                val json = purchaseInfoToJson(purchase)
                 // 处理消耗成功的情况
                 // 1. 验证购买
                 // 你可以在这里添加服务器端的购买验证，确保购买有效
@@ -164,8 +131,8 @@ class MainActivity : ComponentActivity(),MainActionCallback {
         }
 
         webView.addJavascriptInterface(WebAppInterface(this), "Android")
-        webView.loadUrl("https://m.kalodata.com")
-//          webView.loadUrl("http://192.168.31.131:5173")
+        webView.loadUrl("https://develop.m.kalodata.com")
+//         webView.loadUrl("http://192.168.31.131:5173")
         // 初始化账单信息
         initializeBillingClient()
     }
@@ -221,7 +188,7 @@ class MainActivity : ComponentActivity(),MainActionCallback {
     })
     }
 
-    override fun toGooglePay(productId:String) {
+    override fun toGooglePay(productId:String, userId:String) {
         // 调用H5中的一个方法
         val productList = listOf(
             QueryProductDetailsParams.Product.newBuilder()
@@ -247,7 +214,9 @@ class MainActivity : ComponentActivity(),MainActionCallback {
                             )
                             val billingFlowParams = BillingFlowParams.newBuilder()
                                 .setProductDetailsParamsList(productDetailsParamsList)
+                                .setObfuscatedAccountId(userId)
                                 .build()
+
                             billingClient.launchBillingFlow(this@MainActivity, billingFlowParams)
                         } else {
                             callJsFromAndroid("channelMessage","buyfail", "Invalid product ID")
@@ -273,8 +242,9 @@ class MainActivity : ComponentActivity(),MainActionCallback {
          * js 调用去购买
          */
         @JavascriptInterface
-        fun handleBuy(productId:String) {
-            toGooglePay(productId)
+        fun handleBuy(productAndUserId:String) {
+            val parts = productAndUserId.split('&')
+            toGooglePay(parts[0], parts[1])
         }
     }
 }
