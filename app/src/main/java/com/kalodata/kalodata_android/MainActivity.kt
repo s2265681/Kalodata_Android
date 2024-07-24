@@ -53,7 +53,8 @@ class MainActivity : ComponentActivity(),MainActionCallback {
             }
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
             Log.d("支付取消", "User canceled the payment: " + billingResult.responseCode);
-            Toast.makeText(this, "User canceled the payment: ${billingResult.responseCode}", Toast.LENGTH_LONG).show()
+            //  用户取消提示
+            //  Toast.makeText(this, "User canceled the payment: ${billingResult.responseCode}", Toast.LENGTH_LONG).show()
 
         } else {
             Log.d("支付失败", "Payment failed: " + billingResult.responseCode);
@@ -131,7 +132,7 @@ class MainActivity : ComponentActivity(),MainActionCallback {
         }
 
         webView.addJavascriptInterface(WebAppInterface(this), "Android")
-        webView.loadUrl("https://develop.m.kalodata.com")
+        webView.loadUrl("https://develop.m.kalodata.com/")
 //         webView.loadUrl("http://192.168.31.131:5173")
         // 初始化账单信息
         initializeBillingClient()
@@ -153,9 +154,10 @@ class MainActivity : ComponentActivity(),MainActionCallback {
     }
 
     fun handleEvaluateJs (funName: String, eventType: String, message:String?){
-        if(eventType =="buyfail"){
-            Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
-        }
+        // 隐藏原生的提示
+        //  if(eventType =="buyfail"){
+        //     Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show()
+        //  }
         webView.evaluateJavascript("javascript:$funName('$eventType', '$message')") { value ->
         }
     }
