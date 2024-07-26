@@ -11,8 +11,8 @@ android {
         applicationId = "com.kalodata.kalodata_android"
         minSdk = 29
         targetSdk = 34
-        versionCode = 11
-        versionName = "1.0.8"
+        versionCode = 13
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
