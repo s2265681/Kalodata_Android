@@ -1,5 +1,6 @@
-package com.kalodata.kalodata;
-import java.util.Base64
+package com.kalodata.kalodata_android;
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -22,6 +23,8 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.google.gson.Gson
+import java.util.Base64
+
 
 // 定义一个回调接口
 interface MainActionCallback {
@@ -42,6 +45,7 @@ fun purchaseInfoToJson(purchase: Purchase): String {
     return base64Encode(gson.toJson(purchase))
 }
 
+
 class MainActivity : ComponentActivity(),MainActionCallback {
     private lateinit var webView: WebView
     private lateinit var billingClient: BillingClient;
@@ -53,12 +57,14 @@ class MainActivity : ComponentActivity(),MainActionCallback {
             }
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
             Log.d("支付取消", "User canceled the payment: " + billingResult.responseCode);
+            callJsFromAndroid("channelMessage","buyReport", "User canceled the payment: " + billingResult.responseCode);
             //  用户取消提示
             //  Toast.makeText(this, "User canceled the payment: ${billingResult.responseCode}", Toast.LENGTH_LONG).show()
 
         } else {
             Log.d("支付失败", "Payment failed: " + billingResult.responseCode);
             // 根据具体的响应码处理不同的错误情况
+            callJsFromAndroid("channelMessage","buyReport", "Payment failed: ${billingResult.responseCode}");
             Toast.makeText(this, "Payment failed: ${billingResult.responseCode}", Toast.LENGTH_LONG).show()
         }
     }
@@ -125,15 +131,14 @@ class MainActivity : ComponentActivity(),MainActionCallback {
             override fun onPageFinished(view: WebView, url: String) {
                 super.onPageFinished(view, url)
                 // 页面加载完成后可以在这里执行一些操作，例如调用JavaScript函数
-                // webView.evaluateJavascript("javascript:testDat2('buyFail');") { value ->
-                //    Toast.makeText(this@MainActivity, "JavaScript returned" + value, Toast.LENGTH_SHORT).show()
-                // }
+                // val infoJson =  getAppInfoToJson();
+                // callJsFromAndroid("channelMessage","initAndroidAppInfo",infoJson)
             }
         }
 
         webView.addJavascriptInterface(WebAppInterface(this), "Android")
-        webView.loadUrl("https://develop.m.kalodata.com/")
-//         webView.loadUrl("http://192.168.31.131:5173")
+        webView.loadUrl("https://m.kalodata.com/")
+         webView.loadUrl("http://192.168.31.131:5173")
         // 初始化账单信息
         initializeBillingClient()
     }
@@ -151,6 +156,24 @@ class MainActivity : ComponentActivity(),MainActionCallback {
                 handleEvaluateJs(funName, eventType, message)
             }
         }
+    }
+
+    /**
+     * 获取当前版本
+     */
+    private fun getAppInfoToJson(): String {
+        var pm: PackageManager? = packageManager
+        var packageName: String = getPackageName()
+        var packageInfo: PackageInfo = pm!!.getPackageInfo(packageName, 0)
+        var versionCode: Int = packageInfo.versionCode
+        var versionName: String = packageInfo.versionName
+        val gson = Gson();
+        val info = mapOf(
+            "versionCode" to versionCode,
+            "versionName" to versionName,
+            "packageName" to packageName
+        )
+        return base64Encode(gson.toJson(info))
     }
 
     fun handleEvaluateJs (funName: String, eventType: String, message:String?){
@@ -181,11 +204,12 @@ class MainActivity : ComponentActivity(),MainActionCallback {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     // 支付客户端初始化成功
                     Toast.makeText( this@MainActivity, "The payment client was initialized successfully.", Toast.LENGTH_SHORT).show()
+                    callJsFromAndroid("channelMessage","buyReport", "The payment client was initialized successfully.")
                 }
             }
             override fun onBillingServiceDisconnected() {
                 // 处理支付服务断开的情况
-                callJsFromAndroid("channelMessage","buyfail", "Handle payment service disconnection")
+                callJsFromAndroid("channelMessage","buyReport", "Handle payment service disconnection")
             }
     })
     }
@@ -243,10 +267,15 @@ class MainActivity : ComponentActivity(),MainActionCallback {
         /**
          * js 调用去购买
          */
+
         @JavascriptInterface
         fun handleBuy(productAndUserId:String) {
             val parts = productAndUserId.split('&')
             toGooglePay(parts[0], parts[1])
+        }
+        @JavascriptInterface
+        fun initAppInfo(): String {
+            return getAppInfoToJson();
         }
     }
 }
